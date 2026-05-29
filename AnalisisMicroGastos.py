@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # URL de la API
-url = "http://localhost:8080/microgastosapp/v1/gastos/usuario/7"
+url = "http://localhost:8080/microgastosapp/v1/gastos/usuario/8"
 
 # Consumir la API: Este muestra los datos recibidos desde la API
 response = requests.get(url)
