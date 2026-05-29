@@ -1,36 +1,61 @@
+import requests
 import pandas as pd
+import matplotlib.pyplot as plt
 
-print("MicroGastos: Ejercicio de Análisis de Datos")
+# URL de la API
+url = "http://localhost:8080/microgastosapp/v1/gastos/usuario/3"
 
-#Creamos el DataFrame con los datos de gastos
-data_gastos = {
-    'Descripcion': ['Almuerzo', 'Transporte', 'Mercado', 'Cine', 'Gasolina'],
-    'Fecha': ['2026-04-25', '2026-04-24', '2026-04-23', '2026-04-22', '2026-04-21'],
-    'Valor': [2000, 18000, 25000, 8000, 30000]
-}
+# Consumir la API
+response = requests.get(url)
+
+# Convertir JSON
+gastos = response.json()
+
+# Lista para almacenar datos
+datos = []
+
+# Recorrer gastos
+for gasto in gastos:
+    datos.append({
+        "descripcion": gasto["descripcion"],
+        "fecha": gasto["fecha"],
+        "valor": gasto["valor"]
+    })
 
 # Crear DataFrame
-df_gastos = pd.DataFrame(data_gastos)
+df = pd.DataFrame(datos)
 
-print("\nDatos de gastos:")
-print(df_gastos)
+# Mostrar datos
+print(df)
 
-#Filtrar gastos mayores a 15000
-gastos_altos = df_gastos[df_gastos['Valor'] > 15000]
-print(f"\nGastos mayores a 15000:\n{gastos_altos}\n")
+# GRÁFICA 1 - Gastos por descripción
+gastos_descripcion = df.groupby("descripcion")["valor"].sum()
 
-#Top 3 gastos más altos
-Top3 = df_gastos.nlargest(3, "Valor")
-print(f"Top 3 gastos más altos:\n{Top3}\n")
+gastos_descripcion.plot(kind="bar")
 
-#Agrupar por fecha
-gastos_fecha = df_gastos.groupby("Fecha")["Valor"].sum()
-print(f"Total de gastos por fecha:\n{gastos_fecha}\n")
+plt.title("Gastos por Descripción")
+plt.xlabel("Descripción")
+plt.ylabel("Valor")
 
-#Crear columna derivada
-df_gastos["IVA"] = df_gastos["Valor"] * 0.19
-print(f"Gastos con IVA incluido:\n{df_gastos}\n")
+plt.tight_layout()
+plt.show()
 
-#Exportar a CSV
-df_gastos.to_csv('gastos_microgastos.csv', index=False)
-print("Archivo guardado como gastos_microgastos.csv")
+# GRÁFICA 2 - Distribución porcentual de gastos por descripción
+gastos_descripcion.plot(kind="pie", autopct="%1.1f%%")
+
+plt.title("Distribución de Gastos")
+plt.ylabel("")
+
+plt.show()
+
+# GRÁFICA 3 - Gastos por fecha
+gastos_fecha = df.groupby("fecha")["valor"].sum()
+
+gastos_fecha.plot(kind="line", marker="o")
+
+plt.title("Gastos por Fecha")
+plt.xlabel("Fecha")
+plt.ylabel("Valor")
+
+plt.tight_layout()
+plt.show()
